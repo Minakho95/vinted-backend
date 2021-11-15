@@ -7,37 +7,45 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 
 router.post("/offer/publish", isAuthenticated, async (req, res) => {
   try {
-    const newOffer = new Offer({
-      product_name: req.fields.name,
-      product_description: req.fields.description,
-      product_price: req.fields.price,
-      product_details: [
-        {
-          MARQUE: req.fields.brand,
-        },
-        {
-          TAILLE: req.fields.size,
-        },
-        {
-          ETAT: req.fields.condition,
-        },
-        {
-          COULEUR: req.fields.color,
-        },
-        {
-          EMPLACEMENT: req.fields.city,
-        },
-      ],
-      owner: req.user,
-    });
+    if (req.fields.name && req.fields.price && req.files.picture.path) {
+      const newOffer = new Offer({
+        product_name: req.fields.name,
+        product_description: req.fields.description,
+        product_price: req.fields.price,
+        product_details: [
+          {
+            MARQUE: req.fields.brand,
+          },
+          {
+            TAILLE: req.fields.size,
+          },
+          {
+            ETAT: req.fields.condition,
+          },
+          {
+            COULEUR: req.fields.color,
+          },
+          {
+            EMPLACEMENT: req.fields.city,
+          },
+        ],
+        owner: req.user,
+      });
 
-    let pictureToUpload = req.files.picture.path;
-    const result = await cloudinary.uploader.upload(pictureToUpload, {
-      folder: `/cassiopeia-vinted/offer/${newOffer._id}`,
-    });
-    newOffer.product_image = result;
-    await newOffer.save();
-    res.status(200).json(newOffer);
+      let pictureToUpload = req.files.picture.path;
+
+      const result = await cloudinary.uploader.upload(pictureToUpload, {
+        folder: `/cassiopeia-vinted/offer/${newOffer._id}`,
+      });
+
+      newOffer.product_image = result;
+      await newOffer.save();
+      res.status(200).json(newOffer);
+    } else {
+      res.status(400).json({
+        message: "Les champs titre, prix, photo doivent être remplis",
+      });
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

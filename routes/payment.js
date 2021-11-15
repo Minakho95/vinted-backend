@@ -6,13 +6,12 @@ const stripe = require("stripe")(
 
 router.post("/payment", async (req, res) => {
   try {
-    const stripeToken = req.fields.token;
     // Créer la transaction
     const response = await stripe.charges.create({
       amount: req.fields.amount * 100,
       currency: "eur",
       description: `Paiement vinted pour : ${req.fields.title}`,
-      source: stripeToken,
+      source: req.fields.token,
     });
     res.json(response);
   } catch (error) {

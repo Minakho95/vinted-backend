@@ -8,14 +8,16 @@ const app = express();
 app.use(formidable());
 app.use(cors());
 
+require("dotenv").config();
+
 cloudinary.config({
-  cloud_name: "de3pvbbkn",
-  api_key: "182436473368679",
-  api_secret: "LniQ34EfqQ6iYmZ49OEudtFNnEQ",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Connexion BDD
-mongoose.connect("mongodb://localhost/vinted-app", {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
@@ -33,6 +35,6 @@ app.all("*", (req, res) => {
   res.status(404).json({ message: "inexistant route" });
 });
 
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
   console.log("server started");
 });
